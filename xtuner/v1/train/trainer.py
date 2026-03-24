@@ -1104,6 +1104,9 @@ class Trainer:
         scheduler_path = checkpoint_path / self._SAVE_SCHEDULER_DIR
         train_state_path = checkpoint_path / self._SAVE_TRAIN_STATE_PATH
 
+        if str(DEVICE) == "npu" and self.cur_step == ckp_interval:
+            DEVICE_MODULE.empty_cache()
+
         # Save model and optimizer
         self._engine.save_dcp(
             model_dir=model_path,
@@ -1112,6 +1115,8 @@ class Trainer:
 
         # Save dataloader
         self._save_dataloader(dataloader_path)
+        if str(DEVICE) == "npu":
+            DEVICE_MODULE.empty_cache()
 
         # Save scheduler
         if self.rank == 0:
